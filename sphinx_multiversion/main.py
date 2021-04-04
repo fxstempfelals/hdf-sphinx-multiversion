@@ -229,11 +229,12 @@ def main(argv=None):
             repopath = os.path.join(tmp, gitref.commit)
             try:
                 git.copy_tree(str(gitroot), gitroot.as_uri(), repopath, gitref)
-            except (OSError, subprocess.CalledProcessError):
+            except (OSError, subprocess.CalledProcessError) as e:
                 logger.error(
-                    "Failed to copy git tree for %s to %s",
+                    "Failed to copy git tree for %s to %s:\n%s",
                     gitref.refname,
                     repopath,
+                    e,
                 )
                 continue
 

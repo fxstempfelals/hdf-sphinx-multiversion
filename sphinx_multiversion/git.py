@@ -7,6 +7,7 @@ import re
 import subprocess
 import tarfile
 import tempfile
+import shutil
 
 GitRef = collections.namedtuple(
     "VersionRef",
@@ -154,17 +155,10 @@ def file_exists(gitroot, refname, filename):
 
 
 def copy_tree(gitroot, src, dst, reference, sourcepath="."):
-    with tempfile.SpooledTemporaryFile() as fp:
-        cmd = (
-            "git",
-            "archive",
-            "--format",
-            "tar",
-            reference.commit,
-            "--",
-            sourcepath,
-        )
-        subprocess.check_call(cmd, cwd=gitroot, stdout=fp)
-        fp.seek(0)
-        with tarfile.TarFile(fileobj=fp) as tarfp:
-            tarfp.extractall(dst)
+    try:
+        shutil.copytree(gitroot, dst)
+    except OSError as e:
+        if e.errno == 17:  # already copied
+            return
+        raise
+    subprocess.call(("git", "checkout", "-f", reference.commit), cwd=dst)
