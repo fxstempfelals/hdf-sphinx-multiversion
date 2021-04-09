@@ -161,4 +161,6 @@ def copy_tree(gitroot, src, dst, reference, sourcepath="."):
         if e.errno == 17:  # already copied
             return
         raise
-    subprocess.call(("git", "checkout", "-f", reference.commit), cwd=dst)
+    subprocess.call(("git", "stash"), cwd=dst)
+    subprocess.call(("git", "checkout", reference.commit), cwd=dst)
+    subprocess.call(("git", "stash", "pop"), cwd=dst)
