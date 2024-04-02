@@ -5,6 +5,7 @@ import collections
 import logging
 import os
 import posixpath
+from distutils.version import StrictVersion
 
 from sphinx import config as sphinx_config
 from sphinx.util import i18n as sphinx_i18n
@@ -54,6 +55,14 @@ class VersionInfo:
             for v in self.metadata.values()
             if v["source"] == "tags"
         ]
+
+    @property
+    def sorted_tags(self):
+        return sorted(
+            self.tags,
+            # "dev" at the end
+            key=lambda x: StrictVersion(x.name[1:]) if x.name[0] == "v" else "0.0.1",
+        )
 
     @property
     def branches(self):
